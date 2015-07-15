@@ -12,12 +12,15 @@
  *  Library General Public License for more details.
  *
  *  You should have received a copy of the GNU Library General Public
- *  License along with this library; if not, write to the 
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330, 
+ *  License along with this library; if not, write to the
+ *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  *  Boston, MA  02111-1307  USA.
  *
  * $Id: shout.c 15285 2008-09-10 07:40:24Z brendan $
  */
+
+// via http://lists.xiph.org/pipermail//icecast-dev/2014-July/002352.html
+#define PY_SSIZE_T_CLEAN
 
 #include <Python.h>
 #include <shout/shout.h>
@@ -217,7 +220,7 @@ static PyMethodDef ShoutObjectMethods[] = {
   { "public", NULL, 0, NULL },
   { "dumpfile", NULL, 0, NULL },
   { "audio_info", NULL, 0, NULL },
-  
+
   /* sentinel */
   { NULL, NULL, 0, NULL }
 };
@@ -305,7 +308,7 @@ static void pshoutobj_initattrs(PyObject* self) {
   pshoutobj_setattr(self, "genre", Py_BuildValue(""));
   pshoutobj_setattr(self, "description", Py_BuildValue(""));
   pshoutobj_setattr(self, "audio_info", Py_BuildValue(""));
-  pshoutobj_setattr(self, "dumpfile", Py_BuildValue(""));  
+  pshoutobj_setattr(self, "dumpfile", Py_BuildValue(""));
   pshoutobj_setattr(self, "agent", Py_BuildValue("s", shout_get_agent(conn)));
   pshoutobj_setattr(self, "protocol", Py_BuildValue(""));
   pshoutobj_setattr(self, "nonblocking", shout_get_nonblocking(conn) ? Py_True : Py_False);
@@ -351,7 +354,7 @@ static int pshoutobj_setattr(PyObject* self, char* name, PyObject* v) {
 
   if (v == NULL)
     return -1;
-  
+
   for (attr = ShoutObjectAttrs; attr->name; attr++) {
     if (!strcmp(attr->name, name)) {
       if (v != Py_None && attr->set(attr, me, v) != SHOUTERR_SUCCESS) {
@@ -374,7 +377,7 @@ static PyObject* pshoutobj_open(ShoutObject* self) {
   if (!((ret == SHOUTERR_SUCCESS)||
         ((ret==SHOUTERR_BUSY) && shout_get_nonblocking(self->conn)))) {
     PyErr_SetString(ShoutError, shout_get_error(self->conn));
-    
+
     return NULL;
   }
 
@@ -403,7 +406,7 @@ static PyObject* pshoutobj_send(ShoutObject* self, PyObject* args) {
   res = shout_send(self->conn, data, len);
   Py_END_ALLOW_THREADS
 
-  if (res != SHOUTERR_SUCCESS) { 
+  if (res != SHOUTERR_SUCCESS) {
     PyErr_SetString(ShoutError, shout_get_error(self->conn));
 
     return NULL;
@@ -508,7 +511,7 @@ static int pshoutobj_set_int(ShoutObjectAttr* attr, ShoutObject* self, PyObject*
     PyErr_SetString(PyExc_TypeError, "Numerical argument required");
     return -1;
   }
-  
+
   val = PyLong_AsLong(v);
   set_shout = (pshout_set_shout_int)attr->set_shout;
   return set_shout(self->conn, val);
